@@ -248,11 +248,11 @@ async function main() {
           description: vt.description,
           icon: vt.icon,
           processingTime: vt.processingTime,
-          governmentFee: vt.governmentFee,
-          maxStay: vt.maxStay,
-          validity: vt.validity,
-          eVisa: vt.eVisa,
-          visaOnArrival: vt.visaOnArrival,
+          governmentFee: vt.governmentFee || "",
+          maxStay: vt.maxStay || "",
+          validity: vt.validity || "",
+          eVisa: vt.eVisa ?? false,
+          visaOnArrival: vt.visaOnArrival ?? false,
         },
       });
 

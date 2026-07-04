@@ -29,9 +29,17 @@ function getNestedValue(obj: any, path: string): string {
   return typeof current === "string" ? current : path;
 }
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocale] = useState<Locale>("en");
-  const [dir, setDir] = useState<Direction>("ltr");
+export function I18nProvider({
+  children,
+  initialLocale = "en",
+  initialDir = "ltr",
+}: {
+  children: React.ReactNode;
+  initialLocale?: Locale;
+  initialDir?: Direction;
+}) {
+  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const [dir, setDir] = useState<Direction>(initialDir);
 
   // Load language from Cookie or localStorage on mount
   useEffect(() => {

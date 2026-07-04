@@ -98,7 +98,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="bg-background text-on-surface antialiased font-jakarta min-h-screen">
-        <I18nProvider>
+        <I18nProvider initialLocale={locale} initialDir={dir}>
           {children}
         </I18nProvider>
       </body>

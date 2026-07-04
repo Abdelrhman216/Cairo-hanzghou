@@ -173,7 +173,7 @@ export default function HomeClientPage() {
         {/* Parallax Background */}
         <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
           <Image
-            src={homeContent.settings?.heroImage || "/logo.jpg"}
+            src={homeContent.settings?.heroImage || "/hero.png"}
             alt="Scenic golden sunset landscape representing premium travel destinations"
             fill
             sizes="100vw"

@@ -1,0 +1,232 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── RBAC Models ──────────────────────────────────────────────────────────────
+
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  status       String        @default("active") // "active" | "inactive"
+  joinedDate   String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userRoles    UserRole[]
+  sessions     UserSession[]
+}
+
+model Role {
+  id              String           @id
+  name            String           @unique
+  description     String
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+}
+
+model Permission {
+  id              String           @id
+  code            String           @unique
+  description     String
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roleId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model UserSession {
+  token     String   @id
+  userId    String
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Dynamic Translation Models ───────────────────────────────────────────────
+
+model Language {
+  code String @id
+  name String
+  dir  String // "ltr" | "rtl"
+}
+
+model LocalizedContent {
+  id         String   @id @default(uuid())
+  entityType String // e.g. "destination", "visaType", "document"
+  entityId   String // ID of the referenced entity
+  fieldName  String // e.g. "name", "description", "label"
+  locale     String // e.g. "ar", "en"
+  content    String   @db.Text
+
+  @@unique([entityType, entityId, fieldName, locale])
+}
+
+// ─── CMS Generic Dynamic Store ───────────────────────────────────────────────
+
+model CmsCollectionItem {
+  id         String   @id @default(uuid())
+  collection String // e.g. "destinations", "packages", "hotels", "flights", "faqs", "blogs"
+  data       Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([collection])
+}
+
+model CmsSetting {
+  key   String @id
+  value Json
+}
+
+// ─── Visa System Models (Relational) ──────────────────────────────────────────
+
+model Country {
+  id                  String     @id @default(uuid())
+  countryCode         String     @unique
+  countryName         String
+  flag                String
+  embassyUrl          String
+  continent           String
+  capital             String     @default("")
+  currency            String     @default("")
+  visaFreeForEgyptian Boolean    @default(false)
+  visaTypes           VisaType[]
+}
+
+model VisaType {
+  id             String             @id @default(uuid())
+  countryCode    String
+  label          String
+  description    String             @db.Text
+  icon           String
+  processingTime String
+  governmentFee  String
+  maxStay        String
+  validity       String
+  eVisa          Boolean            @default(false)
+  visaOnArrival  Boolean            @default(false)
+  country        Country            @relation(fields: [countryCode], references: [countryCode], onDelete: Cascade)
+  documents      VisaTypeDocument[]
+}
+
+model VisaDocument {
+  id          String             @id
+  label       String
+  description String             @db.Text
+  required    Boolean            @default(true)
+  sampleUrl   String?
+  visaTypes   VisaTypeDocument[]
+}
+
+model VisaTypeDocument {
+  id         String       @id @default(uuid())
+  visaTypeId String
+  documentId String
+  visaType   VisaType     @relation(fields: [visaTypeId], references: [id], onDelete: Cascade)
+  document   VisaDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([visaTypeId, documentId])
+}
+
+// ─── Application Request Management Models ────────────────────────────────────
+
+model VisaApplication {
+  id                       String                  @id
+  countryCode              String
+  countryName              String
+  countryFlag              String
+  visaTypeId               String
+  visaTypeLabel            String
+  applicantFirstName       String
+  applicantLastName        String
+  applicantEmail           String
+  applicantPhone           String
+  applicantNationality     String
+  applicantPassportNumber  String
+  applicantDateOfBirth     String
+  travelDate               String
+  returnDate               String?
+  status                   String                  @default("Pending") // Pending, Under Review, Documents Required, Approved, Rejected, Completed
+  assignedTo               String
+  notes                    String?                 @db.Text
+  governmentFee            String?
+  processingTime           String?
+  submittedAt              DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+  files                    StoredFile[]
+  internalNotes            InternalNote[]
+  emailLogs                EmailLog[]
+  activityLogs             ActivityLog[]
+}
+
+model StoredFile {
+  fileId        String          @id @default(uuid())
+  documentId    String
+  documentLabel String
+  applicationId String
+  originalName  String
+  mimeType      String
+  sizeBytes     Int
+  content       String          @db.Text // Base-64 encoded payload
+  uploadedAt    DateTime        @default(now())
+  application   VisaApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model InternalNote {
+  id            String          @id @default(uuid())
+  applicationId String
+  author        String
+  content       String          @db.Text
+  time          DateTime        @default(now())
+  application   VisaApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model EmailLog {
+  id            String          @id @default(uuid())
+  applicationId String
+  to            String
+  subject       String
+  body          String          @db.Text
+  type          String // "company_notification" | "customer_confirmation" | "status_update"
+  sentAt        DateTime        @default(now())
+  application   VisaApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id            String          @id @default(uuid())
+  applicationId String
+  action        String
+  details       String          @db.Text
+  actor         String
+  time          DateTime        @default(now())
+  application   VisaApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model AdminNotification {
+  id            String   @id @default(uuid())
+  applicationId String
+  message       String
+  read          Boolean  @default(false)
+  time          DateTime @default(now())
+}

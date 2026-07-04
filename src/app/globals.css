@@ -1,26 +1,211 @@
 @import "tailwindcss";
 
+@plugin "tailwindcss-animate";
+
+@theme {
+  /* === Cairo Hangzhou Brand Palette === */
+  --color-deep-navy: #002147;
+  --color-champagne-gold: #C5A059;
+  --color-sand-beige: #F4EDE1;
+  --color-ink-black: #0A0D10;
+  --color-crisp-white: #FFFFFF;
+
+  /* === Material 3 Surface Tokens === */
+  --color-background: #f8f9fa;
+  --color-surface: #f8f9fa;
+  --color-surface-dim: #d9dadb;
+  --color-surface-bright: #f8f9fa;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f4f5;
+  --color-surface-container: #edeeef;
+  --color-surface-container-high: #e7e8e9;
+  --color-surface-container-highest: #e1e3e4;
+  --color-on-surface: #191c1d;
+  --color-on-surface-variant: #44474e;
+  --color-inverse-surface: #2e3132;
+  --color-inverse-on-surface: #f0f1f2;
+  --color-outline: #74777f;
+  --color-outline-variant: #c4c6cf;
+  --color-surface-tint: #465f88;
+
+  /* === Brand Primaries === */
+  --color-primary: #000a1e;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #002147;
+  --color-on-primary-container: #708ab5;
+  --color-inverse-primary: #aec7f6;
+  --color-primary-fixed: #d6e3ff;
+  --color-primary-fixed-dim: #aec7f6;
+
+  /* === Secondary (Gold) === */
+  --color-secondary: #775a19;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #fed488;
+  --color-on-secondary-container: #785a1a;
+  --color-secondary-fixed: #ffdea5;
+  --color-secondary-fixed-dim: #e9c176;
+
+  /* === Error === */
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-surface-variant: #e1e3e4;
+  --color-on-background: #191c1d;
+
+  /* === Typography === */
+  --font-caslon: "Libre Caslon Text", Georgia, serif;
+  --font-jakarta: "Plus Jakarta Sans", sans-serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  --font-serif: "Libre Caslon Text", Georgia, serif;
+
+  /* === Radius (Stitch Nilotic Silk Spec) === */
+  --radius: 0.25rem;     /* 4px - default for buttons, inputs */
+  --radius-sm: 0.125rem; /* 2px */
+  --radius-md: 0.375rem; /* 6px */
+  --radius-lg: 0.5rem;   /* 8px - destination cards */
+  --radius-xl: 0.75rem;  /* 12px - large containers */
+  --radius-2xl: 1rem;    /* 16px */
+  --radius-3xl: 1.5rem;  /* 24px - reserved */
+
+  /* === Shadows (Ambient Navy per Stitch Spec) === */
+  --shadow-luxury: 0 8px 24px rgba(0, 33, 71, 0.04);
+  --shadow-luxury-md: 0 16px 48px rgba(0, 33, 71, 0.08);
+  --shadow-luxury-lg: 0 24px 64px rgba(0, 33, 71, 0.12);
+  --shadow-gold: 0 4px 16px rgba(197, 160, 89, 0.25);
+  --shadow-hover: 0 12px 32px rgba(0, 33, 71, 0.10);
+
+  /* === Custom Animations === */
+  --animate-fade-in: fadeIn 0.6s ease-out forwards;
+  --animate-fade-up: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+/* Custom keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* === CSS Custom Properties for shadcn/ui === */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --radius: 0.25rem;
+  --background: #f8f9fa;
+  --foreground: #191c1d;
+  --card: #ffffff;
+  --card-foreground: #191c1d;
+  --popover: #ffffff;
+  --popover-foreground: #191c1d;
+  --primary: #002147;
+  --primary-foreground: #ffffff;
+  --secondary: #F4EDE1;
+  --secondary-foreground: #002147;
+  --muted: #edeeef;
+  --muted-foreground: #44474e;
+  --accent: #C5A059;
+  --accent-foreground: #002147;
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+  --border: #c4c6cf;
+  --input: #c4c6cf;
+  --ring: #C5A059;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F4EDE1; }
+::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
+
+/* === Glass Effects === */
+.glass {
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.glass-dark {
+  background: rgba(0, 33, 71, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.glass-navy {
+  background: rgba(0, 33, 71, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* === Utilities === */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+::selection { background: rgba(197, 160, 89, 0.3); color: #002147; }
+
+.gold-shimmer {
+  background: linear-gradient(90deg, #C5A059 0%, #E3D2B3 50%, #C5A059 100%);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+.luxury-divider { display: flex; align-items: center; gap: 12px; }
+.luxury-divider::before,
+.luxury-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #C5A059, transparent);
+}
+
+h1, h2, h3, h4, h5, h6 { text-wrap: balance; }
+
+:focus-visible { outline: 2px solid #C5A059; outline-offset: 2px; }
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+}
+
+/* Background gradient utilities */
+.bg-hero-gradient {
+  background: linear-gradient(to bottom, rgba(0,33,71,0) 0%, rgba(0,33,71,0.4) 60%, rgba(0,33,71,0.9) 100%);
+}
+.bg-card-gradient {
+  background: linear-gradient(to top, rgba(0,33,71,0.7) 0%, rgba(0,33,71,0.2) 50%, transparent 100%);
+}
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #C5A059 0%, #E3D2B3 50%, #C5A059 100%);
+}
+.bg-navy-gradient {
+  background: linear-gradient(135deg, #002147 0%, #003366 100%);
 }

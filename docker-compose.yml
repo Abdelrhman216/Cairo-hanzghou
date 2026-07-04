@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ch_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ch_admin
+      POSTGRES_PASSWORD: ch_secure_pass123
+      POSTGRES_DB: cairo_hangzhou
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

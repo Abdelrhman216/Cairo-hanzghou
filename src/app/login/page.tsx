@@ -72,12 +72,12 @@ export default function LoginPage() {
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-champagne-gold/5 blur-[120px] pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-white/5 blur-[120px] pointer-events-none" />
 
-        <div className={cn("max-w-5xl w-full grid grid-cols-1 lg:grid-cols-2 gap-10 items-stretch z-10", isRtl && "lg:flex-row-reverse")}>
-          {/* Left Panel: Form */}
+        <div className="max-w-md w-full z-10">
+          {/* Form Container */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className={cn("bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-8 md:p-10 flex flex-col justify-between shadow-luxury-lg", isRtl && "order-2")}
+            className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-8 md:p-10 flex flex-col justify-between shadow-luxury-lg"
           >
             <div>
               <div className={cn("flex items-center gap-3 mb-8", isRtl && "flex-row-reverse justify-end")}>
@@ -111,6 +111,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
+                    autoComplete="off"
                     className={cn(
                       "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 font-jakarta text-body-md text-white placeholder-white/30 focus:outline-none focus:border-champagne-gold focus:bg-white/10 transition-all",
                       isRtl && "text-right"
@@ -129,6 +130,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
+                    autoComplete="new-password"
                     className={cn(
                       "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 font-jakarta text-body-md text-white placeholder-white/30 focus:outline-none focus:border-champagne-gold focus:bg-white/10 transition-all",
                       isRtl && "text-right"
@@ -158,48 +160,6 @@ export default function LoginPage() {
               <Link href="/" className="hover:text-champagne-gold transition-colors">
                 {locale === "en" ? "Back to Homepage" : "العودة للرئيسية"}
               </Link>
-            </div>
-          </motion.div>
-
-          {/* Right Panel: Dev Quick Switcher */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className={cn("bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-8 md:p-10 flex flex-col shadow-luxury-lg justify-center", isRtl && "order-1")}
-          >
-            <h2 className={cn("font-caslon text-headline-md text-white mb-1 flex items-center gap-2", isRtl && "flex-row-reverse justify-end")}>
-              <span className="material-symbols-outlined text-champagne-gold">verified_user</span>
-              <span>{locale === "en" ? "Developer Quick Login" : "تسجيل سريع للمطورين"}</span>
-            </h2>
-            <p className={cn("font-jakarta text-xs text-white/50 mb-6 leading-relaxed", isRtl && "text-right")}>
-              {locale === "en"
-                ? "Cairo Hangzhou is configured with Role-Based Access Control (RBAC). Select a pre-seeded account below to instantly switch contexts and verify pages & endpoints."
-                : "تم تهيئة النظام بصلاحيات وصول دقيقة (RBAC). اضغط على أي حساب أدناه لتعبئة بياناته والتبديل فوراً بين الصلاحيات."}
-            </p>
-
-            <div className="space-y-3">
-              {DEV_ACCOUNTS.map((acc) => (
-                <button
-                  key={acc.roleName}
-                  onClick={() => handleQuickLogin(acc)}
-                  className={cn(
-                    "w-full bg-white/5 border border-white/5 hover:border-champagne-gold/30 hover:bg-white/10 rounded-xl p-4 transition-all duration-300 flex items-center justify-between gap-4 group text-left",
-                    isRtl && "text-right flex-row-reverse"
-                  )}
-                >
-                  <div className="min-w-0">
-                    <span className="font-caslon font-semibold text-white group-hover:text-champagne-gold transition-colors text-sm">
-                      {acc.roleName}
-                    </span>
-                    <p className="font-jakarta text-xs text-white/40 truncate mt-0.5">{acc.email}</p>
-                    <p className="font-jakarta text-[11px] text-champagne-gold/60 mt-1">{acc.desc}</p>
-                  </div>
-                  <span className={cn("material-symbols-outlined text-white/20 group-hover:text-champagne-gold group-hover:translate-x-1 transition-all duration-300 text-sm", isRtl && "rotate-180 group-hover:-translate-x-1")}>
-                    arrow_forward
-                  </span>
-                </button>
-              ))}
             </div>
           </motion.div>
         </div>

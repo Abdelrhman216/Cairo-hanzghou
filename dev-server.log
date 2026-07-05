@@ -12062,3 +12062,6 @@ Import trace:
  GET /api/settings 200 in 7ms (next.js: 1686µs, application-code: 6ms)
  GET /api/content/home?lang=en 200 in 28ms (next.js: 7ms, application-code: 21ms)
  GET /api/content/home?lang=en 200 in 13ms (next.js: 3ms, application-code: 10ms)
+ GET /login 200 in 114ms (next.js: 13ms, application-code: 100ms)
+ GET /api/auth/me 200 in 13ms (next.js: 8ms, application-code: 6ms)
+ GET /api/settings 200 in 29ms (next.js: 14ms, application-code: 16ms)

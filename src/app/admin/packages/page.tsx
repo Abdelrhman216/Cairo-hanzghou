@@ -5,15 +5,16 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { TravelPackage } from "@/lib/data";
 
+import { getPackages, updateCmsPackage, deletePackage } from "@/services/packages";
+
 export default function PackageInventoryPage() {
   const [packages, setPackages] = useState<TravelPackage[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadPackages = async () => {
     setLoading(true);
-    const res = await fetch("/api/cms/packages", { cache: "no-store" });
-    const data = await res.json();
-    setPackages(data.items ?? []);
+    const data = await getPackages();
+    setPackages(data ?? []);
     setLoading(false);
   };
 
@@ -22,12 +23,8 @@ export default function PackageInventoryPage() {
   }, []);
 
   const updatePackage = async (id: string, patch: Partial<TravelPackage> & Record<string, any>) => {
-    const res = await fetch("/api/cms/packages", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, patch }),
-    });
-    if (res.ok) await loadPackages();
+    await updateCmsPackage(id, patch);
+    await loadPackages();
   };
 
   const editPackage = async (pkg: TravelPackage) => {

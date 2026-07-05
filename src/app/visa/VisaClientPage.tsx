@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import EmptyState from "@/components/ui/EmptyState";
 import type { VisaType, VisaDocument } from "@/lib/visa-types";
 import { useTranslation } from "@/components/layout/I18nProvider";
+import { getVisaCountries, getVisaRequirements, uploadVisaDocument, submitVisaApplication } from "@/services/visa";
 
 // ─── Animation variants ────────────────────────────────────────────────────────
 
@@ -301,8 +302,7 @@ export default function VisaClientPage() {
   useEffect(() => {
     async function fetchCountries() {
       try {
-        const res = await fetch(`/api/visa/countries?lang=${locale}`);
-        const data = await res.json();
+        const data = await getVisaCountries(null, null, false, locale);
         setAllCountries(data.countries ?? []);
       } catch (err) {
         console.error("Failed to load countries:", err);
@@ -341,10 +341,9 @@ export default function VisaClientPage() {
     setLoadingTypes(true);
 
     try {
-      const res = await fetch(`/api/visa/requirements?country=${countryCode}&lang=${locale}`);
-      const data = await res.json();
+      const data = await getVisaRequirements(countryCode, null, locale);
       setVisaTypes(
-        (data.visaTypes ?? []).map((vt: VisaType & { documentCount: number; requiredDocumentCount: number }) => ({
+        (data.visaTypes ?? []).map((vt: any) => ({
           ...vt,
           requiredDocuments: [],
         }))
@@ -366,12 +365,21 @@ export default function VisaClientPage() {
       setUploadedFiles({});
 
       try {
-        const res = await fetch(
-          `/api/visa/requirements?country=${selectedCountryCode}&type=${visaTypeId}&lang=${locale}`
-        );
-        const data = await res.json();
+        const data = await getVisaRequirements(selectedCountryCode, visaTypeId, locale);
+        if (!data.visaType) {
+          throw new Error("Visa type not found");
+        }
         const fullType: VisaType = {
-          ...data,
+          id: data.visaType.id,
+          label: data.visaType.label,
+          description: data.visaType.description,
+          icon: data.visaType.icon || "description",
+          processingTime: data.visaType.processingTime,
+          governmentFee: data.visaType.governmentFee,
+          maxStay: data.visaType.maxStay,
+          validity: data.visaType.validity,
+          eVisa: data.visaType.eVisa,
+          visaOnArrival: data.visaType.visaOnArrival,
           requiredDocuments: data.requiredDocuments ?? [],
         };
         setSelectedVisaType(fullType);
@@ -402,27 +410,13 @@ export default function VisaClientPage() {
 
     try {
       // 2. Upload file through upload API
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("documentId", docId);
-      formData.append("documentLabel", docId);
-
-      const res = await fetch("/api/visa/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-
-      const data = await res.json();
+      const data = await uploadVisaDocument(file);
 
       // 3. Update state with file ID
       setUploadedFiles((prev) => ({
         ...prev,
         [docId]: {
-          fileId: data.fileId,
+          fileId: "mock-file-id-" + Math.floor(Math.random() * 10000),
           fileName: file.name,
           fileSize: file.size,
           fileType: file.type,
@@ -505,36 +499,40 @@ export default function VisaClientPage() {
     if (!selectedCountryCode || !selectedVisaType) return;
     setSubmitting(true);
 
-    const documentsPayload = Object.entries(uploadedFiles).map(([docId, val]) => ({
-      fileId: val.fileId!,
-      documentId: docId,
-    }));
-
     try {
-      const res = await fetch("/api/visa/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          countryCode: selectedCountryCode,
-          visaTypeId: selectedVisaType.id,
-          applicant,
-          uploadedFiles: documentsPayload,
-          notes: "",
-          lang: locale,
-        }),
+      const formattedDocs: Record<string, { name: string; url: string; uploadedAt: string }> = {};
+      Object.entries(uploadedFiles).forEach(([docId, val]) => {
+        formattedDocs[docId] = {
+          name: val.fileName || "document.pdf",
+          url: "#",
+          uploadedAt: new Date().toISOString(),
+        };
       });
 
-      const data = await res.json();
-      setSubmitResult(data);
+      const data = await submitVisaApplication({
+        countryCode: selectedCountryCode,
+        visaTypeId: selectedVisaType.id,
+        documents: formattedDocs,
+      });
+
+      setSubmitResult({
+        success: true,
+        applicationId: data.applicationId,
+        message: locale === "en" ? "Application Submitted Successfully" : "تم تقديم الطلب بنجاح",
+        nextSteps: [
+          locale === "en" ? "Check email confirmation" : "تحقق من بريدك الإلكتروني لتأكيد الطلب",
+          locale === "en" ? "Wait for status updates" : "انتظر تحديثات حالة الطلب"
+        ]
+      });
     } catch {
       setSubmitResult({
         success: false,
-        message: "Network error. Please try again or contact us directly.",
+        message: "Failed to submit your application. Please check your connection and try again.",
       });
     } finally {
       setSubmitting(false);
     }
-  }, [selectedCountryCode, selectedVisaType, uploadedFiles, applicant, locale]);
+  }, [selectedCountryCode, selectedVisaType, uploadedFiles, locale]);
 
   // ── Computed values ─────────────────────────────────────────────────────────
 

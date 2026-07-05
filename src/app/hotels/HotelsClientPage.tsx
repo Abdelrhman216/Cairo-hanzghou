@@ -12,6 +12,7 @@ import HotelCard from "@/components/cards/HotelCard";
 import EmptyState from "@/components/ui/EmptyState";
 import { submitTravelRequest } from "@/lib/api-client";
 import { useTranslation } from "@/components/layout/I18nProvider";
+import { getHotels } from "@/services/hotels";
 
 const searchSchema = z.object({
   location: z.string().min(2, "Destination is required"),
@@ -53,9 +54,8 @@ export default function HotelsClientPage() {
     async function loadHotels() {
       setLoadingHotels(true);
       try {
-        const res = await fetch(`/api/hotels?lang=${locale}`);
-        const data = await res.json();
-        setHotelsData(data.hotels ?? []);
+        const data = await getHotels(locale);
+        setHotelsData(data ?? []);
       } catch (err) {
         console.error("Failed to load hotels:", err);
       } finally {

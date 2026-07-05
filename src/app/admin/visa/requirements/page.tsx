@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import type { VisaDocument } from "@/lib/visa-types";
+import { getVisaCountries, getVisaRequirements, getDocumentRegistry, updateVisaRequirement, deleteVisaRequirement, addVisaRequirement } from "@/services/visa";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -37,8 +38,7 @@ export default function AdminVisaRequirementsPage() {
   // Load countries on mount
   const fetchCountries = useCallback(async () => {
     try {
-      const res = await fetch("/api/visa/countries");
-      const data = await res.json();
+      const data = await getVisaCountries();
       setCountries(data.countries ?? []);
     } catch (err) {
       console.error("Failed to load countries:", err);
@@ -55,9 +55,8 @@ export default function AdminVisaRequirementsPage() {
   useEffect(() => {
     async function loadRegistry() {
       try {
-        const res = await fetch("/api/visa/requirements?registry=true");
-        const data = await res.json();
-        setMasterRegistry(data.documents ?? []);
+        const docs = await getDocumentRegistry();
+        setMasterRegistry(docs ?? []);
       } catch (err) {
         console.error("Failed to load document registry:", err);
       }
@@ -89,8 +88,7 @@ export default function AdminVisaRequirementsPage() {
     setLoadingTypes(true);
 
     try {
-      const res = await fetch(`/api/visa/requirements?country=${countryCode}`);
-      const data = await res.json();
+      const data = await getVisaRequirements(countryCode);
       setVisaTypes(data.visaTypes ?? []);
     } catch (err) {
       console.error("Failed to fetch visa types:", err);
@@ -107,10 +105,7 @@ export default function AdminVisaRequirementsPage() {
     setShowAddDropdown(false);
 
     try {
-      const res = await fetch(
-        `/api/visa/requirements?country=${selectedCountryCode}&type=${visaTypeId}`
-      );
-      const data = await res.json();
+      const data = await getVisaRequirements(selectedCountryCode!, visaTypeId);
       setVisaTypeDetail(data);
     } catch (err) {
       console.error("Failed to fetch requirements:", err);
@@ -125,18 +120,11 @@ export default function AdminVisaRequirementsPage() {
     if (!selectedCountryCode || !selectedVisaTypeId) return;
 
     try {
-      const res = await fetch("/api/visa/requirements", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          countryCode: selectedCountryCode,
-          visaTypeId: selectedVisaTypeId,
-          docId,
-          patch: { required: !currentRequired },
-        }),
+      const doc = await updateVisaRequirement(selectedCountryCode, selectedVisaTypeId, docId, {
+        required: !currentRequired,
       });
 
-      if (res.ok) {
+      if (doc) {
         // Refresh local view
         setVisaTypeDetail((prev: any) => {
           if (!prev) return null;
@@ -160,17 +148,9 @@ export default function AdminVisaRequirementsPage() {
     if (!selectedCountryCode || !selectedVisaTypeId) return;
 
     try {
-      const res = await fetch("/api/visa/requirements", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          countryCode: selectedCountryCode,
-          visaTypeId: selectedVisaTypeId,
-          docId,
-        }),
-      });
+      const success = await deleteVisaRequirement(selectedCountryCode, selectedVisaTypeId, docId);
 
-      if (res.ok) {
+      if (success) {
         setVisaTypeDetail((prev: any) => {
           if (!prev) return null;
           return {
@@ -190,26 +170,17 @@ export default function AdminVisaRequirementsPage() {
     if (!selectedCountryCode || !selectedVisaTypeId) return;
 
     try {
-      const res = await fetch("/api/visa/requirements", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          countryCode: selectedCountryCode,
-          visaTypeId: selectedVisaTypeId,
-          document: {
-            ...doc,
-            required: true, // Default to required when added
-          },
-        }),
+      const createdDoc = await addVisaRequirement(selectedCountryCode, selectedVisaTypeId, {
+        ...doc,
+        required: true, // Default to required when added
       });
 
-      if (res.ok) {
-        const json = await res.json();
+      if (createdDoc) {
         setVisaTypeDetail((prev: any) => {
           if (!prev) return null;
           return {
             ...prev,
-            requiredDocuments: [...prev.requiredDocuments, json.document],
+            requiredDocuments: [...prev.requiredDocuments, createdDoc],
           };
         });
         setShowAddDropdown(false);

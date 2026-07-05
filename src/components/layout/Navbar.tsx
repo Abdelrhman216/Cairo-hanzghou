@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/components/layout/I18nProvider";
 
+import { getCurrentUser, logout } from "@/services/auth";
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -38,8 +40,7 @@ export default function Navbar() {
 
   const checkAuth = async () => {
     try {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
+      const data = await getCurrentUser();
       if (data && data.navigation) {
         setAuthState({
           authenticated: data.authenticated,
@@ -74,7 +75,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await logout();
       router.refresh();
       router.push("/");
     } catch (err) {

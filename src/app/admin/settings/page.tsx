@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/components/layout/I18nProvider";
+import { getCurrentUser, getRolesWithPermissions, getAllPermissions, updateRolePermissions } from "@/services/auth";
 
 interface RoleWithPermissions {
   id: string;
@@ -36,8 +37,7 @@ export default function SystemSettingsPage() {
     // Check permissions
     async function checkPermissions() {
       try {
-        const res = await fetch("/api/auth/me");
-        const data = await res.json();
+        const data = await getCurrentUser();
         if (data.authenticated) {
           const managePerm = data.permissions.includes("role.manage");
           setHasRoleManagePermission(managePerm);
@@ -52,12 +52,10 @@ export default function SystemSettingsPage() {
 
   const loadRolePermissions = async () => {
     try {
-      const res = await fetch("/api/auth/roles");
-      const data = await res.json();
-      if (data.roles && data.allPermissions) {
-        setRoles(data.roles);
-        setAllPermissions(data.allPermissions);
-      }
+      const rolesData = await getRolesWithPermissions();
+      const permsData = getAllPermissions();
+      setRoles(rolesData);
+      setAllPermissions(permsData);
     } catch (err) {
       console.error("Failed to load role permissions:", err);
     }
@@ -88,28 +86,17 @@ export default function SystemSettingsPage() {
     }
 
     try {
-      const res = await fetch("/api/auth/roles", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          roleId: selectedRole.id,
-          permissionCodes: newPermissions,
-        }),
-      });
-
-      if (res.ok) {
-        // Refresh local state
-        setRoles(
-          roles.map((r) =>
-            r.id === selectedRole.id ? { ...r, permissions: newPermissions } : r
-          )
-        );
-        setMessage(locale === "en" ? "Permissions updated successfully!" : "تم تحديث الصلاحيات بنجاح!");
-      } else {
-        setMessage("Failed to update permissions.");
-      }
-    } catch (err) {
-      setMessage("Network error occurred.");
+      await updateRolePermissions(selectedRole.id, newPermissions);
+      
+      // Refresh local state
+      setRoles(
+        roles.map((r) =>
+          r.id === selectedRole.id ? { ...r, permissions: newPermissions } : r
+        )
+      );
+      setMessage(locale === "en" ? "Permissions updated successfully!" : "تم تحديث الصلاحيات بنجاح!");
+    } catch {
+      setMessage("Failed to update permissions.");
     } finally {
       setUpdatingRoleId(null);
       setTimeout(() => setMessage(null), 3000);

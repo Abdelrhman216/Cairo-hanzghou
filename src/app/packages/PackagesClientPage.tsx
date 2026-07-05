@@ -29,6 +29,8 @@ const localizedFilters: Record<string, Record<string, string>> = {
   },
 };
 
+import { getPackages } from "@/services/packages";
+
 export default function PackagesClientPage() {
   const { locale, dir, t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState("All");
@@ -41,9 +43,8 @@ export default function PackagesClientPage() {
     async function loadPackages() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/packages?lang=${locale}`);
-        const data = await res.json();
-        setPkgs(data.packages ?? []);
+        const data = await getPackages(locale);
+        setPkgs(data ?? []);
       } catch (err) {
         console.error("Failed to fetch packages:", err);
       } finally {

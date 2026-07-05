@@ -19,6 +19,8 @@ const fadeUp = {
   }),
 };
 
+import { getPackage } from "@/services/packages";
+
 export default function PackageDetailClient({ pkg }: { pkg: TravelPackage }) {
   const { locale, dir, t } = useTranslation();
   const [travelDate, setTravelDate] = useState("");
@@ -32,9 +34,7 @@ export default function PackageDetailClient({ pkg }: { pkg: TravelPackage }) {
   useEffect(() => {
     async function loadDetails() {
       try {
-        const res = await fetch(`/api/packages?lang=${locale}`);
-        const data = await res.json();
-        const found = (data.packages ?? []).find((p: any) => p.id === pkg.id);
+        const found = await getPackage(pkg.id, locale);
         if (found) {
           setLocalizedPkg(found);
         }

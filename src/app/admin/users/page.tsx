@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import StatusBadge from "@/components/ui/StatusBadge";
 import { useTranslation } from "@/components/layout/I18nProvider";
+import { getUsers, updateUserRole } from "@/services/auth";
 
 interface UserDto {
   id: string;
@@ -31,27 +32,26 @@ export default function UserManagementPage() {
   const fetchUsersAndRoles = async () => {
     try {
       // Fetch users
-      const usersRes = await fetch("/api/auth/users");
-      const usersData = await usersRes.json();
-      if (usersData.users) {
-        setUsers(usersData.users);
-      }
+      const usersData = await getUsers();
+      const mapped = usersData.map((u: any) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        status: u.status as "active" | "inactive",
+        joinedDate: u.joinedDate,
+        roleId: u.role,
+        roles: [u.role.replace("role-", "")],
+      }));
+      setUsers(mapped);
 
-      // Fetch roles (if allowed by permissions)
-      const rolesRes = await fetch("/api/auth/roles");
-      const rolesData = await rolesRes.json();
-      if (rolesData.roles) {
-        setRoles(rolesData.roles);
-      } else {
-        // Fallback roles list
-        setRoles([
-          { id: "role-superadmin", name: "Super Admin" },
-          { id: "role-admin", name: "Admin" },
-          { id: "role-manager", name: "Manager" },
-          { id: "role-employee", name: "Employee" },
-          { id: "role-customer", name: "Customer" },
-        ]);
-      }
+      // Fetch roles
+      setRoles([
+        { id: "role-superadmin", name: "Super Admin" },
+        { id: "role-admin", name: "Admin" },
+        { id: "role-manager", name: "Manager" },
+        { id: "role-employee", name: "Employee" },
+        { id: "role-customer", name: "Customer" },
+      ]);
     } catch (err) {
       console.error("Failed to load users / roles:", err);
     } finally {
@@ -67,22 +67,12 @@ export default function UserManagementPage() {
     setUpdatingUserId(userId);
     setMessage(null);
     try {
-      const res = await fetch("/api/auth/users/role", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, roleId: newRoleId }),
-      });
-
-      if (res.ok) {
-        setMessage(locale === "en" ? "User role updated successfully!" : "تم تحديث دور المستخدم بنجاح!");
-        // Refresh list
-        await fetchUsersAndRoles();
-      } else {
-        const err = await res.json();
-        setMessage(err.error || "Failed to update role");
-      }
-    } catch (err) {
-      setMessage("Network error occurred.");
+      await updateUserRole(userId, newRoleId);
+      setMessage(locale === "en" ? "User role updated successfully!" : "تم تحديث دور المستخدم بنجاح!");
+      // Refresh list
+      await fetchUsersAndRoles();
+    } catch {
+      setMessage(locale === "en" ? "Failed to update role." : "فشل تحديث دور المستخدم.");
     } finally {
       setUpdatingUserId(null);
       setTimeout(() => setMessage(null), 3000);

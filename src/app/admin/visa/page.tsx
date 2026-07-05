@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import StatusBadge from "@/components/ui/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState";
+import { getVisaApplications, getVisaApplication, updateVisaApplicationStatus, assignVisaApplication, addVisaApplicationNote } from "@/services/visa";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 15 },
@@ -23,35 +24,44 @@ const STATUS_STYLES: Record<string, string> = {
   Pending: "bg-amber-100 text-amber-700",
   "Under Review": "bg-blue-100 text-blue-700",
   Rejected: "bg-red-100 text-red-700",
-  "Documents Required": "bg-purple-100 text-purple-700",
-  Completed: "bg-emerald-100 text-emerald-800",
+  "Documents Required": "bg-orange-100 text-orange-700",
+  Completed: "bg-purple-100 text-purple-700",
 };
 
-export default function VisaApplicationsPage() {
-  const [applications, setApplications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-
-  // Detail panel state
+export default function VisaDashboard() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [applications, setApplications] = useState<any[]>([]);
   const [detailData, setDetailData] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
-
-  // Form states inside detail panel
   const [noteContent, setNoteContent] = useState("");
   const [submittingNote, setSubmittingNote] = useState(false);
+
+  // Filters
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [search, setSearch] = useState("");
 
   // Fetch applications list
   const fetchApplications = useCallback(async () => {
     try {
-      const query = new URLSearchParams();
-      if (statusFilter !== "All") query.set("status", statusFilter);
-      if (search) query.set("search", search);
-
-      const res = await fetch(`/api/visa/applications?${query.toString()}`);
-      const data = await res.json();
-      setApplications(data.applications ?? []);
+      let data = await getVisaApplications();
+      if (statusFilter !== "All") {
+        data = data.filter((a: any) => {
+          let mappedStatus = a.status.toLowerCase();
+          if (mappedStatus === "reviewing") mappedStatus = "under review";
+          return mappedStatus === statusFilter.toLowerCase();
+        });
+      }
+      if (search) {
+        const s = search.toLowerCase();
+        data = data.filter((a: any) =>
+          a.userName.toLowerCase().includes(s) ||
+          a.userEmail.toLowerCase().includes(s) ||
+          a.id.toLowerCase().includes(s) ||
+          a.countryCode.toLowerCase().includes(s)
+        );
+      }
+      setApplications(data);
     } catch (err) {
       console.error("Failed to load applications:", err);
     } finally {
@@ -59,10 +69,10 @@ export default function VisaApplicationsPage() {
     }
   }, [search, statusFilter]);
 
-  // Initial fetch and polling/refresh
+  // Initial fetch
   useEffect(() => {
     setLoading(true);
-    fetchApplications().then(() => setLoading(false));
+    fetchApplications();
   }, [fetchApplications]);
 
   // Fetch application detail when selected
@@ -72,12 +82,13 @@ export default function VisaApplicationsPage() {
       return;
     }
 
+    const appId = selectedId;
+
     async function fetchDetail() {
       setLoadingDetail(true);
       try {
-        const res = await fetch(`/api/visa/applications/${selectedId}`);
-        const data = await res.json();
-        setDetailData(data.application ?? null);
+        const data = await getVisaApplication(appId);
+        setDetailData(data);
       } catch (err) {
         console.error("Failed to fetch application detail:", err);
         setDetailData(null);
@@ -93,21 +104,14 @@ export default function VisaApplicationsPage() {
   const handleStatusChange = async (newStatus: string) => {
     if (!selectedId) return;
     try {
-      const res = await fetch(`/api/visa/applications/${selectedId}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.ok) {
-        // Refresh details & list
-        const updated = await res.json();
-        setDetailData((prev: any) => prev ? { ...prev, status: updated.application.status } : null);
-        fetchApplications();
-        // Re-fetch detail to get new emails/activity logs
-        const detailRes = await fetch(`/api/visa/applications/${selectedId}`);
-        const detailJson = await detailRes.json();
-        setDetailData(detailJson.application);
-      }
+      let statusKey = newStatus.toLowerCase() as any;
+      if (statusKey === "under review") statusKey = "reviewing";
+      if (statusKey === "pending") statusKey = "pending";
+
+      await updateVisaApplicationStatus(selectedId, statusKey);
+      const updated = await getVisaApplication(selectedId);
+      setDetailData(updated);
+      fetchApplications();
     } catch (err) {
       console.error("Failed to update status:", err);
     }
@@ -117,20 +121,10 @@ export default function VisaApplicationsPage() {
   const handleAssign = async (employee: string) => {
     if (!selectedId) return;
     try {
-      const res = await fetch(`/api/visa/applications/${selectedId}/assign`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ employee }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setDetailData((prev: any) => prev ? { ...prev, assignedTo: updated.application.assignedTo } : null);
-        fetchApplications();
-        // Re-fetch detail to get activity logs
-        const detailRes = await fetch(`/api/visa/applications/${selectedId}`);
-        const detailJson = await detailRes.json();
-        setDetailData(detailJson.application);
-      }
+      await assignVisaApplication(selectedId, employee);
+      const updated = await getVisaApplication(selectedId);
+      setDetailData(updated);
+      fetchApplications();
     } catch (err) {
       console.error("Failed to assign:", err);
     }
@@ -143,18 +137,11 @@ export default function VisaApplicationsPage() {
     setSubmittingNote(true);
 
     try {
-      const res = await fetch(`/api/visa/applications/${selectedId}/note`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: noteContent, author: "Admin" }),
-      });
-      if (res.ok) {
-        setNoteContent("");
-        const detailRes = await fetch(`/api/visa/applications/${selectedId}`);
-        const detailJson = await detailRes.json();
-        setDetailData(detailJson.application);
-        fetchApplications();
-      }
+      await addVisaApplicationNote(selectedId, noteContent, "Admin Manager");
+      setNoteContent("");
+      const updated = await getVisaApplication(selectedId);
+      setDetailData(updated);
+      fetchApplications();
     } catch (err) {
       console.error("Failed to add note:", err);
     } finally {

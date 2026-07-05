@@ -12,7 +12,7 @@ import {
   fetchTravelRequests,
   updateTravelRequestStatus,
 } from "@/lib/api-client";
-import type { RequestStatus, TravelRequest } from "@/lib/server-store";
+import type { RequestStatus, TravelRequest } from "@/lib/api-client";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },

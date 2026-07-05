@@ -23,6 +23,8 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
 
+import { getHomeContent } from "@/services/content";
+
 export default function HomeClientPage() {
   const heroRef = useRef<HTMLElement>(null);
   const { scrollY } = useScroll();
@@ -49,8 +51,7 @@ export default function HomeClientPage() {
     async function loadHomeContent() {
       setLoadingDests(true);
       try {
-        const res = await fetch(`/api/content/home?lang=${locale}`, { cache: "no-store" });
-        const data = await res.json();
+        const data = await getHomeContent(locale);
         setHomeContent(data);
         setDests(data.destinations ?? []);
       } catch (err) {

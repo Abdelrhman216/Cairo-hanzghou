@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import EmptyState from "@/components/ui/EmptyState";
 import { submitTravelRequest } from "@/lib/api-client";
 import { useTranslation } from "@/components/layout/I18nProvider";
+import { getFlights } from "@/services/flights";
 
 const POPULAR_AIRPORTS = [
   "Cairo (CAI)", "Dubai (DXB)", "London (LHR)", "New York (JFK)", "Paris (CDG)",
@@ -94,9 +95,8 @@ export default function FlightsClientPage() {
     async function loadFlights() {
       setLoadingFlights(true);
       try {
-        const res = await fetch(`/api/flights?lang=${locale}`);
-        const data = await res.json();
-        setFlightsData(data.flights ?? []);
+        const data = await getFlights(locale);
+        setFlightsData(data ?? []);
       } catch (err) {
         console.error("Failed to load flights:", err);
       } finally {

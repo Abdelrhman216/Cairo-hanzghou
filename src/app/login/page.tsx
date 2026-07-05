@@ -17,6 +17,8 @@ const DEV_ACCOUNTS = [
   { roleName: "Customer", email: "customer@cairohangzhou.com", pass: "password123", desc: "Book Flights, Hotels & View Profile" },
 ];
 
+import { login } from "@/services/auth";
+
 export default function LoginPage() {
   const { locale, dir } = useTranslation();
   const isRtl = dir === "rtl";
@@ -33,28 +35,19 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Authentication failed");
+      const data = await login(email, password);
+      
+      // Trigger session update and redirect
+      // For admin dashboard users, redirect to /admin, else /profile
+      const isStaff = email.includes("admin") || email.includes("manager") || email.includes("employee");
+      router.refresh();
+      if (isStaff) {
+        router.push("/admin");
       } else {
-        // Trigger session update and redirect
-        // For admin dashboard users, redirect to /admin, else /profile
-        const isStaff = email.includes("admin") || email.includes("manager") || email.includes("employee");
-        router.refresh();
-        if (isStaff) {
-          router.push("/admin");
-        } else {
-          router.push("/profile");
-        }
+        router.push("/profile");
       }
-    } catch (err) {
-      setError("An unexpected network error occurred.");
+    } catch (err: any) {
+      setError(err.message || "Authentication failed");
     } finally {
       setLoading(false);
     }

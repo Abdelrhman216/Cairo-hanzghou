@@ -430,7 +430,7 @@ export default function HomeClientPage() {
                   <p className="font-jakarta text-label-sm text-outline uppercase tracking-widest mb-1">
                     {locale === "en" ? "Starting from" : "تبدأ الرسوم من"}
                   </p>
-                  <p className="font-caslon text-headline-lg text-champagne-gold font-bold">$25</p>
+                  <p className="font-caslon text-headline-lg text-champagne-gold font-bold">EGP 1,250</p>
                   <Link
                     href="/visa"
                     className="mt-4 inline-flex items-center text-sm font-jakarta font-semibold text-deep-navy hover:text-champagne-gold transition-colors duration-300 group"

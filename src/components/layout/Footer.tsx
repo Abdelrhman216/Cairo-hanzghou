@@ -24,9 +24,14 @@ const footerTranslations = {
       "Our Story": "Our Story",
       "Why Us": "Why Us",
       "Testimonials": "Testimonials",
-      "Contact": "Contact",
+      "Contact": "Contact Us",
+      "Privacy Policy": "Privacy Policy",
+      "Terms & Conditions": "Terms & Conditions",
+      "Refund Policy": "Refund Policy",
+      "Cancellation Policy": "Cancellation Policy",
+      "Shipping Policy": "Shipping & Delivery Policy",
     },
-    taglineBottom: "Visa Consultancy & Travel Services",
+    taglineBottom: "Visa Consultancy & Travel Services — All Payments Processed in EGP Only",
     privacy: "Privacy Policy",
     terms: "Terms of Service",
     copyright: "© {year} Cairo Hangzhou. All rights reserved.",
@@ -51,8 +56,13 @@ const footerTranslations = {
       "Why Us": "لماذا تختارنا",
       "Testimonials": "تجارب وآراء العملاء",
       "Contact": "اتصل بنا",
+      "Privacy Policy": "سياسة الخصوصية",
+      "Terms & Conditions": "الشروط والأحكام",
+      "Refund Policy": "سياسة الاسترداد",
+      "Cancellation Policy": "سياسة الإلغاء",
+      "Shipping Policy": "سياسة الشحن والتسليم",
     },
-    taglineBottom: "استشارات التأشيرات وخدمات السفر العالمية",
+    taglineBottom: "استشارات التأشيرات وخدمات السفر العالمية — جميع المدفوعات بالجنيه المصري فقط",
     privacy: "سياسة الخصوصية",
     terms: "شروط الخدمة",
     copyright: "© {year} القاهرة هانغتشو. جميع الحقوق محفوظة.",
@@ -75,9 +85,9 @@ export default function Footer() {
   const footer = settings?.footer ?? {};
   const footerLinks = footer.links ?? {};
   const socialLinks = [
-    { icon: "language", label: "Website", labelAr: "الموقع الإلكتروني", href: company.website || "#" },
-    { icon: "mail", label: "Email", labelAr: "البريد الإلكتروني", href: `mailto:${company.email || "info@cairohangzhou.com"}` },
-    { icon: "phone", label: "Phone", labelAr: "الهاتف", href: `tel:${company.phone || "+201234567890"}` },
+    { icon: "location_on", label: "14 EL-AHRAR STREET, ELDOKKII", labelAr: "14 شارع الأحرار، الدقي", href: "/contact" },
+    { icon: "mail", label: "info@cairohangzhou.com", labelAr: "info@cairohangzhou.com", href: "mailto:info@cairohangzhou.com" },
+    { icon: "phone", label: "+20 114 942 2491", labelAr: "+20 114 942 2491", href: "tel:+201149422491" },
   ];
 
   return (
@@ -155,12 +165,24 @@ export default function Footer() {
               {tFooter.copyright.replace("{year}", String(new Date().getFullYear()))}
             </span>
             <span aria-hidden="true">·</span>
-            <Link href="#" className="hover:text-white transition-colors duration-300">
+            <Link href="/privacy-policy" className="hover:text-white transition-colors duration-300">
               {tFooter.privacy}
             </Link>
             <span aria-hidden="true">·</span>
-            <Link href="#" className="hover:text-white transition-colors duration-300">
+            <Link href="/terms" className="hover:text-white transition-colors duration-300">
               {tFooter.terms}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/refund-policy" className="hover:text-white transition-colors duration-300">
+              {locale === "en" ? "Refund Policy" : "سياسة الاسترداد"}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/cancellation-policy" className="hover:text-white transition-colors duration-300">
+              {locale === "en" ? "Cancellation Policy" : "سياسة الإلغاء"}
+            </Link>
+            <span aria-hidden="true">·</span>
+            <Link href="/shipping-policy" className="hover:text-white transition-colors duration-300">
+              {locale === "en" ? "Delivery Policy" : "سياسة التسليم"}
             </Link>
           </div>
         </div>

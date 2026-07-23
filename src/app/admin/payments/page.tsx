@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import { formatEGP } from "@/lib/currency";
 
 const monthlyData = [
   { month: "Jan", revenue: 180000, bookings: 142 },
@@ -123,7 +124,7 @@ export default function PaymentsAnalyticsPage() {
                   <td className="px-6 py-4 font-jakarta font-bold text-deep-navy text-sm">{t.id}</td>
                   <td className="px-6 py-4 font-jakarta text-sm whitespace-nowrap">{t.guest}</td>
                   <td className="px-6 py-4 font-jakarta text-sm">{t.type}</td>
-                  <td className="px-6 py-4 font-jakarta font-bold text-champagne-gold">${t.amount.toLocaleString()}</td>
+                  <td className="px-6 py-4 font-jakarta font-bold text-champagne-gold">{formatEGP(t.amount)}</td>
                   <td className="px-6 py-4 font-jakarta text-sm text-outline">{t.method}</td>
                   <td className="px-6 py-4 font-jakarta text-sm text-outline">{t.date}</td>
                   <td className="px-6 py-4">

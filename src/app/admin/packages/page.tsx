@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { formatEGP } from "@/lib/currency";
 import type { TravelPackage } from "@/lib/data";
 
 import { getPackages, updateCmsPackage, deletePackage } from "@/services/packages";
@@ -96,8 +97,8 @@ export default function PackageInventoryPage() {
                   <p className="font-jakarta text-label-sm text-outline">{pkg.destinationLabel} · {pkg.duration}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-caslon text-headline-md text-champagne-gold">${pkg.price.toLocaleString()}</p>
-                  <p className="font-jakarta text-label-sm text-outline line-through">${pkg.originalPrice.toLocaleString()}</p>
+                  <p className="font-caslon text-headline-md text-champagne-gold">{formatEGP(pkg.price)}</p>
+                  <p className="font-jakarta text-label-sm text-outline line-through">{formatEGP(pkg.originalPrice)}</p>
                 </div>
               </div>
               <div className="flex items-center justify-between">

@@ -136,24 +136,24 @@ export const HOTEL_AMENITIES = [
   "Laundry Service",
 ] as const;
 
-/** Price range filter options */
+/** Price range filter options (all in EGP) */
 export const PRICE_RANGES = {
   flights: [
-    { label: "Under $500", min: 0, max: 500 },
-    { label: "$500 – $1,500", min: 500, max: 1500 },
-    { label: "$1,500 – $3,000", min: 1500, max: 3000 },
-    { label: "Above $3,000", min: 3000, max: Infinity },
+    { label: "Under EGP 25,000", labelAr: "أقل من 25,000 ج.م", min: 0, max: 25000 },
+    { label: "EGP 25,000 – EGP 75,000", labelAr: "25,000 - 75,000 ج.م", min: 25000, max: 75000 },
+    { label: "EGP 75,000 – EGP 150,000", labelAr: "75,000 - 150,000 ج.م", min: 75000, max: 150000 },
+    { label: "Above EGP 150,000", labelAr: "أكثر من 150,000 ج.م", min: 150000, max: Infinity },
   ],
   hotels: [
-    { label: "Under $100/night", min: 0, max: 100 },
-    { label: "$100 – $300/night", min: 100, max: 300 },
-    { label: "$300 – $600/night", min: 300, max: 600 },
-    { label: "Above $600/night", min: 600, max: Infinity },
+    { label: "Under EGP 5,000/night", labelAr: "أقل من 5,000 ج.م/ليلة", min: 0, max: 5000 },
+    { label: "EGP 5,000 – EGP 15,000/night", labelAr: "5,000 - 15,000 ج.م/ليلة", min: 5000, max: 15000 },
+    { label: "EGP 15,000 – EGP 30,000/night", labelAr: "15,000 - 30,000 ج.م/ليلة", min: 15000, max: 30000 },
+    { label: "Above EGP 30,000/night", labelAr: "أكثر من 30,000 ج.م/ليلة", min: 30000, max: Infinity },
   ],
   packages: [
-    { label: "Under $1,500", min: 0, max: 1500 },
-    { label: "$1,500 – $3,000", min: 1500, max: 3000 },
-    { label: "$3,000 – $6,000", min: 3000, max: 6000 },
-    { label: "Above $6,000", min: 6000, max: Infinity },
+    { label: "Under EGP 75,000", labelAr: "أقل من 75,000 ج.م", min: 0, max: 75000 },
+    { label: "EGP 75,000 – EGP 150,000", labelAr: "75,000 - 150,000 ج.م", min: 75000, max: 150000 },
+    { label: "EGP 150,000 – EGP 300,000", labelAr: "150,000 - 300,000 ج.م", min: 150000, max: 300000 },
+    { label: "Above EGP 300,000", labelAr: "أكثر من 300,000 ج.م", min: 300000, max: Infinity },
   ],
 };

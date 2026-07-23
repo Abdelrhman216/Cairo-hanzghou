@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { formatEGP } from "@/lib/currency";
 import StatusBadge from "@/components/ui/StatusBadge";
 
 const fadeUp = {
@@ -10,11 +11,11 @@ const fadeUp = {
 };
 
 const bookings = [
-  { id: "#HB-0121", guest: "Sarah Al-Mansouri", hotel: "Four Seasons Cairo", checkIn: "Aug 14", checkOut: "Aug 18", rooms: 1, amount: 1680, status: "confirmed", nights: 4 },
-  { id: "#HB-0120", guest: "James Whitmore", hotel: "Ritz-Carlton Hangzhou", checkIn: "Sep 2", checkOut: "Sep 9", rooms: 2, amount: 4060, status: "confirmed", nights: 7 },
-  { id: "#HB-0119", guest: "Li Wei", hotel: "Sofitel Legend Aswan", checkIn: "Aug 22", checkOut: "Aug 26", rooms: 1, amount: 1280, status: "pending", nights: 4 },
-  { id: "#HB-0118", guest: "Nadia Hassan", hotel: "Four Seasons Cairo", checkIn: "Jul 30", checkOut: "Aug 2", rooms: 1, amount: 1260, status: "confirmed", nights: 3 },
-  { id: "#HB-0117", guest: "Ahmed Youssef", hotel: "Ritz-Carlton Hangzhou", checkIn: "Sep 15", checkOut: "Sep 22", rooms: 1, amount: 4060, status: "pending", nights: 7 },
+  { id: "#HB-0121", guest: "Sarah Al-Mansouri", hotel: "Four Seasons Cairo", checkIn: "Aug 14", checkOut: "Aug 18", rooms: 1, amount: 84000, status: "confirmed", nights: 4 },
+  { id: "#HB-0120", guest: "James Whitmore", hotel: "Ritz-Carlton Hangzhou", checkIn: "Sep 2", checkOut: "Sep 9", rooms: 2, amount: 203000, status: "confirmed", nights: 7 },
+  { id: "#HB-0119", guest: "Li Wei", hotel: "Sofitel Legend Aswan", checkIn: "Aug 22", checkOut: "Aug 26", rooms: 1, amount: 64000, status: "pending", nights: 4 },
+  { id: "#HB-0118", guest: "Nadia Hassan", hotel: "Four Seasons Cairo", checkIn: "Jul 30", checkOut: "Aug 2", rooms: 1, amount: 63000, status: "confirmed", nights: 3 },
+  { id: "#HB-0117", guest: "Ahmed Youssef", hotel: "Ritz-Carlton Hangzhou", checkIn: "Sep 15", checkOut: "Sep 22", rooms: 1, amount: 203000, status: "pending", nights: 7 },
 ];
 
 const statusColors: Record<string, string> = {
@@ -89,7 +90,7 @@ export default function HotelBookingsPage() {
                   <td className="px-6 py-4 font-jakarta text-sm text-outline">{b.checkOut}</td>
                   <td className="px-6 py-4 font-jakarta text-sm text-on-surface">{b.nights}</td>
                   <td className="px-6 py-4 font-jakarta text-sm text-on-surface">{b.rooms}</td>
-                  <td className="px-6 py-4 font-jakarta font-bold text-champagne-gold">${b.amount.toLocaleString()}</td>
+                  <td className="px-6 py-4 font-jakarta font-bold text-champagne-gold">{formatEGP(b.amount)}</td>
                   <td className="px-6 py-4"><StatusBadge status={b.status} /></td>
                   <td className="px-6 py-4">
                     <div className="flex gap-2">

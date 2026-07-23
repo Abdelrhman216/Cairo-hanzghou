@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import PublicLayout from "@/components/layout/PublicLayout";
 import { submitTravelRequest } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
+import { formatEGP } from "@/lib/currency";
 import { type TravelPackage } from "@/lib/data";
 import { useTranslation } from "@/components/layout/I18nProvider";
 
@@ -26,6 +27,8 @@ export default function PackageDetailClient({ pkg }: { pkg: TravelPackage }) {
   const [travelDate, setTravelDate] = useState("");
   const [passengers, setPassengers] = useState(1);
   const [bookedRequest, setBookedRequest] = useState<{ id: string; title: string } | null>(null);
+  const [agreedTerms, setAgreedTerms] = useState(false);
+  const [agreedRefund, setAgreedRefund] = useState(false);
 
   const [localizedPkg, setLocalizedPkg] = useState<TravelPackage>(pkg);
 
@@ -47,6 +50,10 @@ export default function PackageDetailClient({ pkg }: { pkg: TravelPackage }) {
 
   const handleBookPackage = async (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!agreedTerms || !agreedRefund) {
+      alert(locale === "en" ? "Please agree to the Terms & Conditions and Refund Policy before proceeding." : "يرجى الموافقة على الشروط والأحكام وسياسة الاسترداد قبل المتابعة.");
+      return;
+    }
     const detailsStr = `Package: ${localizedPkg.title}. Subtitle: ${localizedPkg.subtitle}. Destination: ${localizedPkg.destinationLabel}. Duration: ${localizedPkg.duration}. Group Size: ${localizedPkg.groupSize}. Travel Date: ${travelDate || "Not specified"}. Passengers: ${passengers}. Highlights: ${localizedPkg.highlights.join(", ")}.`;
     const price = localizedPkg.price * passengers;
 
@@ -183,13 +190,13 @@ export default function PackageDetailClient({ pkg }: { pkg: TravelPackage }) {
             <div className={cn("self-start", isRtl ? "order-1 lg:sticky lg:top-28" : "order-2 lg:sticky lg:top-28")}>
               <div className="bg-white rounded-xl p-8 shadow-luxury-lg border border-outline-variant/20">
                 <div className={isRtl ? "text-right" : "text-left"}>
-                  <p className="font-jakarta text-label-sm text-outline line-through mb-1">${localizedPkg.originalPrice.toLocaleString()} {locale === "en" ? "per person" : "للشخص الواحد"}</p>
-                  <p className="font-caslon text-display-lg-mobile text-champagne-gold">${localizedPkg.price.toLocaleString()}</p>
+                  <p className="font-jakarta text-label-sm text-outline line-through mb-1">{formatEGP(localizedPkg.originalPrice, locale)} {locale === "en" ? "per person" : "للشخص الواحد"}</p>
+                  <p className="font-caslon text-display-lg-mobile text-champagne-gold">{formatEGP(localizedPkg.price, locale)}</p>
                   <p className="font-jakarta text-label-sm text-outline">
                     {locale === "en" ? "per person" : "للشخص الواحد"}
                   </p>
                   <div className={cn("mt-2 px-3 py-1 bg-green-100 text-green-700 rounded text-label-sm font-bold w-fit", isRtl && "mr-0 ml-auto")}>
-                    {locale === "en" ? `Save $${(pkg.originalPrice - pkg.price).toLocaleString()}` : `وفر ${(pkg.originalPrice - pkg.price).toLocaleString()} $`}
+                    {locale === "en" ? `Save ${formatEGP(pkg.originalPrice - pkg.price, locale)}` : `وفر ${formatEGP(pkg.originalPrice - pkg.price, locale)}`}
                   </div>
                 </div>
 
@@ -234,14 +241,58 @@ export default function PackageDetailClient({ pkg }: { pkg: TravelPackage }) {
                   onClick={handleBookPackage}
                   className="w-full bg-deep-navy text-white font-jakarta font-bold py-4 rounded text-center block hover:bg-champagne-gold hover:text-deep-navy transition-all duration-300 active:scale-95 mb-3"
                 >
-                  {locale === "en" ? "Book This Package" : "حجز هذا البرنامج"}
+                  {locale === "en" ? `Book This Package — ${formatEGP(localizedPkg.price * passengers, locale)}` : `حجز هذا البرنامج — ${formatEGP(localizedPkg.price * passengers, locale)}`}
                 </button>
-                <button 
+                <button
                   onClick={() => alert(locale === "en" ? "Custom quote request coming soon." : "طلب تسعير خاص قريباً.")}
                   className="w-full border border-outline-variant text-deep-navy font-jakarta font-semibold py-3.5 rounded hover:bg-sand-beige transition-all duration-300"
                 >
                   {locale === "en" ? "Request Custom Quote" : "طلب تسعير خاص"}
                 </button>
+
+                {/* Compliance Checkboxes */}
+                <div className="mt-5 space-y-3">
+                  <label className={cn("flex items-start gap-2.5 cursor-pointer", isRtl && "flex-row-reverse text-right")}>
+                    <input
+                      type="checkbox"
+                      checked={agreedTerms}
+                      onChange={(e) => setAgreedTerms(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-champagne-gold shrink-0"
+                    />
+                    <span className="font-jakarta text-xs text-on-surface-variant leading-relaxed">
+                      {locale === "en" ? (
+                        <>I agree to the <a href="/terms" target="_blank" className="text-champagne-gold underline hover:text-deep-navy">Terms &amp; Conditions</a>.</>
+                      ) : (
+                        <>أوافق على <a href="/terms" target="_blank" className="text-champagne-gold underline hover:text-deep-navy">الشروط والأحكام</a>.</>
+                      )}
+                    </span>
+                  </label>
+                  <label className={cn("flex items-start gap-2.5 cursor-pointer", isRtl && "flex-row-reverse text-right")}>
+                    <input
+                      type="checkbox"
+                      checked={agreedRefund}
+                      onChange={(e) => setAgreedRefund(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-champagne-gold shrink-0"
+                    />
+                    <span className="font-jakarta text-xs text-on-surface-variant leading-relaxed">
+                      {locale === "en" ? (
+                        <>I have read the <a href="/refund-policy" target="_blank" className="text-champagne-gold underline hover:text-deep-navy">Refund Policy</a>.</>
+                      ) : (
+                        <>لقد قرأت <a href="/refund-policy" target="_blank" className="text-champagne-gold underline hover:text-deep-navy">سياسة الاسترداد</a>.</>
+                      )}
+                    </span>
+                  </label>
+                </div>
+
+                {/* Security Notice */}
+                <div className={cn("mt-4 flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200/50", isRtl && "flex-row-reverse text-right")}>
+                  <span className="material-symbols-outlined text-green-600 text-base shrink-0 mt-0.5">lock</span>
+                  <p className="font-jakarta text-[11px] text-green-700 leading-relaxed">
+                    {locale === "en"
+                      ? "Your card information is processed securely by our payment provider and is never stored on our website. All payments are in Egyptian Pounds (EGP)."
+                      : "يتم معالجة بيانات بطاقتك بشكل آمن من خلال مزود خدمة الدفع ولا يتم تخزينها على موقعنا. جميع المدفوعات بالجنيه المصري."}
+                  </p>
+                </div>
 
                 <div className="mt-6 pt-6 border-t border-outline-variant/30 space-y-3">
                   {(locale === "en" 

@@ -1,13 +1,14 @@
 "use client";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { formatEGP } from "@/lib/currency";
 import StatusBadge from "@/components/ui/StatusBadge";
 
 const flights = [
-  { id: "#FB-0441", passenger: "Sarah Al-Mansouri", route: "CAI → HGH", date: "Aug 15", airline: "EgyptAir MS895", class: "Business", amount: 2840, status: "confirmed" },
-  { id: "#FB-0440", passenger: "James Whitmore", route: "HGH → CAI", date: "Sep 10", airline: "Air China CA975", class: "Economy", amount: 1200, status: "pending" },
-  { id: "#FB-0439", passenger: "Dr. Fatima Al-Rashid", route: "CAI → HGH", date: "Aug 22", airline: "EgyptAir MS895", class: "First", amount: 3600, status: "confirmed" },
-  { id: "#FB-0438", passenger: "Mohamed Karim", route: "CAI → HGH", date: "Jul 30", airline: "EgyptAir MS895", class: "Business", amount: 2840, status: "cancelled" },
+  { id: "#FB-0441", passenger: "Sarah Al-Mansouri", route: "CAI → HGH", date: "Aug 15", airline: "EgyptAir MS895", class: "Business", amount: 142000, status: "confirmed" },
+  { id: "#FB-0440", passenger: "James Whitmore", route: "HGH → CAI", date: "Sep 10", airline: "Air China CA975", class: "Economy", amount: 60000, status: "pending" },
+  { id: "#FB-0439", passenger: "Dr. Fatima Al-Rashid", route: "CAI → HGH", date: "Aug 22", airline: "EgyptAir MS895", class: "First", amount: 180000, status: "confirmed" },
+  { id: "#FB-0438", passenger: "Mohamed Karim", route: "CAI → HGH", date: "Jul 30", airline: "EgyptAir MS895", class: "Business", amount: 142000, status: "cancelled" },
 ];
 const statusColors: Record<string,string> = { confirmed:"bg-green-100 text-green-700", pending:"bg-amber-100 text-amber-700", cancelled:"bg-red-100 text-red-700" };
 
@@ -61,7 +62,7 @@ export default function FlightRequestsPage() {
                   <td className="px-6 py-4 font-jakarta text-sm text-outline">{f.date}</td>
                   <td className="px-6 py-4 font-jakarta text-sm whitespace-nowrap">{f.airline}</td>
                   <td className="px-6 py-4 font-jakarta text-sm">{f.class}</td>
-                  <td className="px-6 py-4 font-jakarta font-bold text-champagne-gold">${f.amount.toLocaleString()}</td>
+                  <td className="px-6 py-4 font-jakarta font-bold text-champagne-gold">{formatEGP(f.amount)}</td>
                   <td className="px-6 py-4"><StatusBadge status={f.status} /></td>
                   <td className="px-6 py-4"><div className="flex gap-2">
                     <button className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center hover:text-champagne-gold" aria-label="Edit"><span className="material-symbols-outlined text-sm">edit</span></button>

@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { formatEGP } from "@/lib/currency";
 import StatusBadge from "@/components/ui/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState";
 import {
@@ -391,7 +392,7 @@ export default function AdminDashboard() {
                   <p className="font-jakarta text-xs text-outline mt-1.5 leading-relaxed">{selectedRequest.details}</p>
                   <div className="mt-4 flex items-center justify-between border-t border-outline-variant/10 pt-3 text-xs font-jakarta">
                     <span className="text-outline">Price Total</span>
-                    <span className="font-caslon font-bold text-base text-champagne-gold">${selectedRequest.amount.toLocaleString()}</span>
+                    <span className="font-caslon font-bold text-base text-champagne-gold">{formatEGP(selectedRequest.amount)}</span>
                   </div>
                 </div>
 

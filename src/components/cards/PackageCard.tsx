@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/components/layout/I18nProvider";
+import { formatEGP } from "@/lib/currency";
 
 interface PackageCardProps {
   pkg: any;
@@ -88,8 +89,8 @@ export default function PackageCard({ pkg, index }: PackageCardProps) {
             <p className="font-jakarta text-label-sm text-outline mt-1">{pkg.subtitle}</p>
           </div>
           <div className={cn("shrink-0", isRtl ? "text-left" : "text-right")}>
-            <p className="font-jakarta text-label-sm text-outline line-through">${pkg.originalPrice.toLocaleString()}</p>
-            <p className="font-caslon text-headline-md text-champagne-gold">${pkg.price.toLocaleString()}</p>
+            <p className="font-jakarta text-label-sm text-outline line-through">{formatEGP(pkg.originalPrice, locale)}</p>
+            <p className="font-caslon text-headline-md text-champagne-gold">{formatEGP(pkg.price, locale)}</p>
             <p className="font-jakarta text-label-sm text-outline">
               {locale === "en" ? "per person" : "للشخص"}
             </p>

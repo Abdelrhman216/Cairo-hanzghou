@@ -9,6 +9,7 @@ import * as z from "zod";
 import PublicLayout from "@/components/layout/PublicLayout";
 import { CABIN_CLASSES, TRIP_TYPES, PRICE_RANGES } from "@/lib/config/services";
 import { cn } from "@/lib/utils";
+import { formatEGP } from "@/lib/currency";
 import EmptyState from "@/components/ui/EmptyState";
 import { submitTravelRequest } from "@/lib/api-client";
 import { useTranslation } from "@/components/layout/I18nProvider";
@@ -223,9 +224,9 @@ export default function FlightsClientPage() {
     if (priceFilter.length > 0) {
       result = result.filter((f) => {
         return priceFilter.some((range) => {
-          if (range.includes("Under $500") || range.includes("أقل من 500$")) return f.price < 500;
-          if (range.includes("$500 - $1,500") || range.includes("500$ - 1500$")) return f.price >= 500 && f.price <= 1500;
-          if (range.includes("Over $1,500") || range.includes("أكثر من 1500$")) return f.price > 1500;
+          if (range.includes("Under EGP") || range.includes("أقل من")) return f.price < 25000;
+          if (range.includes("25,000") && (range.includes("75,000") || range.includes("–"))) return f.price >= 25000 && f.price <= 75000;
+          if (range.includes("Above EGP") || range.includes("أكثر من")) return f.price > 150000;
           return false;
         });
       });
@@ -717,7 +718,7 @@ export default function FlightsClientPage() {
                           {/* Price details */}
                           <div className={cn("flex items-center gap-4 md:gap-6", isRtl && "flex-row-reverse text-left")}>
                             <div className={isRtl ? "text-left" : "text-right"}>
-                              <p className="font-caslon text-headline-md text-champagne-gold">${flight.price.toLocaleString()}</p>
+                              <p className="font-caslon text-headline-md text-champagne-gold">{formatEGP(flight.price, locale)}</p>
                               <p className="font-jakarta text-label-sm text-outline font-medium">
                                 {locale === "en" ? flight.class : (flight.class === "Business Class" ? "درجة رجال الأعمال" : "الدرجة الأولى")}
                               </p>
@@ -788,6 +789,15 @@ export default function FlightsClientPage() {
                   ? `Your flight request for ${bookedRequest.title} has been saved. An email confirmation has been logged, and an advisor is reviewing your reservation.`
                   : `تم حفظ طلب حجز الطيران الخاص بك لـ ${bookedRequest.title}. تم إرسال إشعار بريد إلكتروني، ويقوم مستشار السفر لدينا بمراجعة طلبك وتأكيده.`}
               </p>
+              {/* Security Notice */}
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 border border-green-200/50 mb-4 text-left">
+                <span className="material-symbols-outlined text-green-600 text-base shrink-0 mt-0.5">lock</span>
+                <p className="font-jakarta text-[11px] text-green-700 leading-relaxed">
+                  {locale === "en"
+                    ? "Your card information is processed securely by our payment provider and is never stored on our website. All payments are in Egyptian Pounds (EGP)."
+                    : "يتم معالجة بيانات بطاقتك بشكل آمن من خلال مزود خدمة الدفع ولا يتم تخزينها على موقعنا. جميع المدفوعات بالجنيه المصري."}
+                </p>
+              </div>
               <div className="flex gap-3 w-full">
                 <Link
                   href="/profile"

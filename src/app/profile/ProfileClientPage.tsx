@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import PublicLayout from "@/components/layout/PublicLayout";
 import { cn } from "@/lib/utils";
+import { formatEGP } from "@/lib/currency";
 import StatusBadge from "@/components/ui/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState";
 import { fetchMyTravelRequests } from "@/lib/api-client";
@@ -247,7 +248,7 @@ export default function ProfileClientPage() {
                             </div>
                             <div className={cn("flex sm:flex-col items-center justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-none border-outline-variant/10 shrink-0", isRtl ? "sm:items-start" : "sm:items-end")}>
                               <StatusBadge status={booking.status} />
-                              <p className="font-caslon text-sm font-bold text-champagne-gold">${booking.amount.toLocaleString()}</p>
+                              <p className="font-caslon text-sm font-bold text-champagne-gold">{formatEGP(booking.amount)}</p>
                             </div>
                           </motion.div>
                         ))
@@ -317,7 +318,7 @@ export default function ProfileClientPage() {
                                 </p>
                               </div>
                               <div className={cn("flex items-center justify-between border-t border-outline-variant/5 pt-3 mt-3", isRtl && "flex-row-reverse")}>
-                                <span className="font-caslon text-sm font-bold text-champagne-gold">${trip.price.toLocaleString()}</span>
+                                <span className="font-caslon text-sm font-bold text-champagne-gold">{formatEGP(trip.price)}</span>
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => handleRemoveSaved(trip.id, trip.title)}

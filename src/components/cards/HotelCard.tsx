@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/components/layout/I18nProvider";
+import { formatEGP } from "@/lib/currency";
 
 interface HotelCardProps {
   hotel: any;
@@ -96,7 +97,7 @@ export default function HotelCard({ hotel, index, onBook }: HotelCardProps) {
                 </p>
               </div>
               <div className={cn("shrink-0", isRtl ? "text-left" : "text-right")}>
-                <p className="font-caslon text-headline-md text-champagne-gold">${hotel.price}</p>
+                <p className="font-caslon text-headline-md text-champagne-gold">{formatEGP(hotel.price, locale)}</p>
                 <p className="font-jakarta text-label-sm text-outline font-medium">
                   {locale === "en" ? "per night" : "لكل ليلة"}
                 </p>
